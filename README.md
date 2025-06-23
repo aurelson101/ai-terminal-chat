@@ -1,31 +1,29 @@
-
-# AI Terminal Chat 🤖💬
-
-  
+# AI Terminal Chat 🤖💬 - Secure Edition
 
 Un assistant IA intelligent pour votre terminal, inspiré de Warp, avec support de nombreux LLM locaux et en ligne.
 
-  
-
+**🔒 Version 2.0 avec fonctionnalités de sécurité avancées**
 **🇺🇸 English version: [README_en.md](README_en.md)**
-
-  
 
 ## ✨ Fonctionnalités
 
-  
+- **Support LLM complet** : Ollama, LM Studio, OpenAI, OpenRouter, Anthropic, Groq
+- **Sécurité renforcée** : Chiffrement des clés API, validation d'entrées, rate limiting
+- **Multilingue** : Français et anglais avec détection automatique
+- **Multiplateforme** : Linux et Windows 11 avec PowerShell sécurisé
+- **Interface élégante** : Couleurs adaptatives et mise en forme Rich
+- **Configuration simple** : Assistant de configuration interactif
+- **Commande globale** : Tapez `chat` depuis n'importe où
+- **Audit et logging** : Traçabilité complète des activités
 
--  **Support LLM complet** : Ollama, LM Studio, OpenAI, OpenRouter, Anthropic, Groq
+## 🛡️ Fonctionnalités de Sécurité (Nouveau!)
 
--  **Multilingue** : Français et anglais avec détection automatique
-
--  **Multiplateforme** : Linux et Windows 11 avec PowerShell
-
--  **Interface élégante** : Couleurs adaptatives et mise en forme Rich
-
--  **Configuration simple** : Assistant de configuration interactif
-
--  **Commande globale** : Tapez `chat` depuis n'importe où
+- **🔐 Chiffrement** : Clés API chiffrées avec AES-256 + PBKDF2
+- **⚡ Rate Limiting** : Protection contre l'abus d'API (par minute/heure/jour)
+- **🛡️ Validation d'entrées** : Protection contre l'injection de commandes
+- **📊 Audit Trail** : Logging sécurisé de toutes les activités
+- **🔍 Validation d'intégrité** : Vérification des scripts et configurations
+- **🔒 Mode sécurisé** : Activation des protections renforcées
 
 ![enter image description here](https://i.ibb.co/W4QMVR5S/chat-ai-menu.png)
 
@@ -67,360 +65,195 @@ chat
 
 ### Windows 11
 
-  
-
 ```powershell
-
 # Cloner le projet
-
 git clone https://github.com/aurelson101/ai-terminal-chat
-
 cd ai-terminal-chat
 
-  
-
-# Installation
-
+# Installation standard
 .\install_windows.ps1
 
-  
+# Installation en mode sécurisé (recommandé)
+.\install_windows.ps1 -SecureMode -Verbose
+
+# Validation de sécurité
+.\validate_security_windows.ps1 -Detailed
 
 # Utilisation
-
 chat
 
+# Mode sécurisé
+chat --secure-mode
 ```
 
-  
+## 🔒 Utilisation Sécurisée (Nouveau!)
 
-## 💬 Utilisation
-
-  
-
-### Commandes de base
-
-  
+### Activation du mode sécurisé
 
 ```bash
+# Mode sécurisé complet
+chat --secure-mode
 
-chat  # Lancer le chat
+# Configuration avec chiffrement
+chat --config --secure-mode
 
-chat  --lang  fr  # Forcer le français
-
-chat  --lang  en  # Forcer l'anglais
-
-chat  --select-lang  # Sélecteur de langue
-
-chat  --config  # Reconfigurer le LLM
-
-chat  --reset-lang  # Réinitialiser la langue
-
-chat  --help  # Aide
-
-```
-
-  
-
-### Dans le chat
-
-  
-
--  `copy` : Copier la dernière réponse
-
--  `config` : Reconfigurer le LLM
-
--  `quit`, `exit`, `q` : Quitter
-
--  `Ctrl+C` : Quitter
-
-  
-
-## 🔧 Configuration LLM
-
-  
-
-### LLM Locaux (Gratuits)
-
-  
-
-#### Ollama
-
-  
-
-```bash
-
-# Installation
-
-curl  -fsSL  https://ollama.ai/install.sh | sh
-
-  
-
-# Télécharger un modèle
-
-ollama  pull  llama2
-
-ollama  pull  codellama
-
-ollama  pull  mistral
-
-```
-
-  
-
-#### LM Studio
-
-  
-
-1. Télécharger depuis [lmstudio.ai](https://lmstudio.ai)
-
-2. Charger un modèle
-
-3. Démarrer le serveur local (port 1234)
-
-  
-
-### APIs Externes
-
-  
-
-#### OpenRouter (Modèles gratuits recommandés)
-
-  
-
--  `microsoft/phi-4-reasoning-plus:free` - Excellent pour le code
-
--  `google/gemma-2-9b-it:free` - Bon modèle général
-
--  `meta-llama/llama-3.1-8b-instruct:free` - Polyvalent
-
-  
-
-#### Autres APIs
-
-  
-
--  **OpenAI** : Modèles GPT (payant)
-
--  **Anthropic** : Claude (payant)
-
--  **Groq** : Modèles rapides (freemium)
-
-  
-
-## 🌐 Gestion des langues
-
-  
-
-Le système utilise une priorité intelligente :
-
-  
-
-1.  **Langue forcée** (`--lang fr/en`) - Priorité maximale
-
-2.  **Langue mémorisée** - Dernière langue choisie
-
-3.  **Auto-détection** - Langue du système
-
-  
-
-### Exemples
-
-  
-
-```bash
-
-# Premier usage - détection automatique
-
-chat  # → Français si système français
-
-  
-
-# Forcer l'anglais - sera mémorisé
-
-chat  --lang  en
-
-  
-
-# Prochains usages - utilise la préférence
-
-chat  # → Anglais (mémorisé)
-
-  
-
-# Revenir à l'auto-détection
-
-chat  --reset-lang
-
-```
-
-  
-
-## 📁 Structure
-
-  
-
-```text
-
-├── ai_chat.py # Script principal Linux
-
-├── ai_chat_windows.py # Script principal Windows
-
-├── ai_chat_fr.py # Interface française
-
-├── ai_chat_en.py # Interface anglaise
-
-├── windows_helper.py # Module d'aide Windows
-
-├── install.sh # Installation Linux
-
-├── install_windows.ps1 # Installation Windows
-
-├── uninstall.sh # Désinstallation Linux
-
-├── uninstall_windows.ps1 # Désinstallation Windows
-
-├── requirements.txt # Dépendances Python
-
-├── README.md # Ce fichier
-
-└── README_en.md # Version anglaise
-
-```
-
-  
-
-## 🛠️ Dépannage
-
-  
-
-### Commande `chat` non trouvée
-
-  
-
-```bash
-
+# Validation de l'installation
 # Linux
-
-source  ~/.bashrc
-
-# ou redémarrer le terminal
-
-  
+python3 security_utils.py --validate
 
 # Windows
-
-# Redémarrer PowerShell/Terminal
-
+.\validate_security_windows.ps1 -Detailed -FixIssues
 ```
 
-  
+### Fonctionnalités sécurisées
 
-### Erreurs Python
+- **Chiffrement des clés API** : Saisie de mot de passe maître pour chiffrer les clés
+- **Rate limiting intelligent** : Limites par minute (10), heure (100), jour (1000)
+- **Validation des entrées** : Blocage automatique des commandes dangereuses
+- **Audit trail** : Logs sécurisés dans `~/.ai_terminal_chat/audit.log`
 
-  
+## 🔐 Guide de Sécurité Détaillé
+
+### Activation du Mode Sécurisé
+
+Le mode sécurisé peut être activé de plusieurs façons :
 
 ```bash
+# Au lancement
+chat --secure-mode
 
-# Réinstaller les dépendances
+# Configuration sécurisée
+chat --config --secure-mode
 
-pip  install  --user  rich  requests  pyperclip
-
+# Installation sécurisée (Windows)
+.\install_windows.ps1 -SecureMode -Verbose
 ```
 
-  
+### Fonctionnalités de Sécurité
 
-### Configuration corrompue
+#### 🔒 Chiffrement des Données Sensibles
 
-  
+- **Algorithme** : AES-256 + PBKDF2 (100 000 itérations)
+- **Clés protégées** : Clés API, mots de passe, tokens
+- **Stockage** : Configuration chiffrée dans `secure_config.json`
+- **Mot de passe maître** : Requis pour déchiffrer les données
 
 ```bash
-
-# Linux
-
-rm  -rf  ~/.ai_terminal_chat
-
-chat  --config
-
-  
-
-# Windows
-
-Remove-Item  -Path  "$env:LOCALAPPDATA\ai_terminal_chat"  -Recurse  -Force
-
-chat  --config
-
+# Première utilisation en mode sécurisé
+chat --secure-mode
+# → Demande de création d'un mot de passe maître
+# → Chiffrement automatique des clés API
 ```
 
-  
+#### ⚡ Rate Limiting
 
-## 🔄 Mise à jour
+Protection contre l'abus d'API avec limites configurables :
 
-  
+- **Par minute** : 10 requêtes max
+- **Par heure** : 100 requêtes max  
+- **Par jour** : 1000 requêtes max
+- **Stockage** : `rate_limits.json` avec horodatage
+
+#### 🛡️ Validation des Entrées
+
+Protection contre l'injection de commandes :
+
+- Détection de caractères dangereux : `;`, `&`, `|`, `` ` ``
+- Blocage des tentatives d'exécution : `cmd.exe`, `powershell.exe`
+- Prévention de traversée de chemins : `../`, `<`, `>`
+- Validation des noms de fichiers
+
+#### 📊 Audit Trail
+
+Logging sécurisé complet :
+
+- **Fichier** : `~/.ai_terminal_chat/audit.log`
+- **Format** : JSON structuré avec horodatage
+- **Événements** : Requêtes API, erreurs, événements de sécurité
+- **Rotation** : Automatic avec taille limitée
+
+### Validation de Sécurité
+
+#### Linux/macOS
 
 ```bash
+# Validation rapide
+python3 security_utils.py --validate
 
-git  pull
+# Validation complète avec rapport
+python3 security_utils.py --validate --detailed
 
-# Linux
-
-./install.sh
-
-  
-
-# Windows
-
-.\install_windows.ps1
-
+# Test d'intégrité des configurations
+python3 security_utils.py --check-integrity
 ```
 
-  
+#### Windows
 
-## 🗑️ Désinstallation
+```powershell
+# Validation complète
+.\validate_security_windows.ps1 -Detailed
 
-  
+# Correction automatique des problèmes
+.\validate_security_windows.ps1 -Detailed -FixIssues
+
+# Rapport de sécurité
+.\validate_security_windows.ps1 -SecurityReport
+```
+
+### Bonnes Pratiques de Sécurité
+
+#### Protection des Clés API
+
+1. **Utilisez toujours le mode sécurisé** pour les environnements de production
+2. **Créez un mot de passe fort** pour le chiffrement (12+ caractères)
+3. **Sauvegardez vos configurations chiffrées** régulièrement
+4. **Limitez les permissions** des fichiers de configuration
+
+#### Surveillance
+
+1. **Vérifiez les logs d'audit** régulièrement
+2. **Surveillez les tentatives de rate limiting**
+3. **Validez l'intégrité** des scripts périodiquement
+4. **Mettez à jour** les dépendances de sécurité
+
+#### Environnements d'Entreprise
 
 ```bash
+# Configuration pour entreprise
+export AI_CHAT_SECURE_MODE=1
+export AI_CHAT_AUDIT_LEVEL=high
+export AI_CHAT_RATE_LIMIT_STRICT=1
 
-# Linux
-
-./uninstall.sh
-
-  
-
-# Windows
-
-.\uninstall_windows.ps1
-
+# Démarrage sécurisé
+chat --secure-mode --audit-high
 ```
 
-  
+### Dépannage Sécurité
 
-## 📋 Prérequis
+#### Problèmes Courants
 
-  
+1. **Cryptography non installé**
+   ```bash
+   pip install cryptography>=41.0.0
+   ```
 
--  **Python 3.7+** (3.8+ recommandé)
+2. **Permissions incorrectes**
+   ```bash
+   # Linux/macOS
+   chmod 600 ~/.ai_terminal_chat/secure_config.json
+   
+   # Windows
+   icacls "%LOCALAPPDATA%\ai_terminal_chat" /inheritance:r /grant:r "%USERNAME%:F"
+   ```
 
--  **Linux** : bash, curl
+3. **Rate limit dépassé**
+   ```bash
+   # Réinitialiser les compteurs
+   rm ~/.ai_terminal_chat/rate_limits.json
+   ```
 
--  **Windows** : PowerShell 5.1+, Windows Terminal recommandé
-
-  
-
-## 🤝 Support
-
-  
-
-- Vérifiez que Python est installé et dans le PATH
-
-- Utilisez un terminal moderne (Windows Terminal, GNOME Terminal, etc.)
-
-- Pour Windows : PowerShell 7+ recommandé
-
-  
-
----
-
-  
-
-## Profitez de l'IA dans votre terminal ! 🚀
+4. **Configuration corrompue**
+   ```bash
+   # Restaurer depuis une sauvegarde
+   cp ~/.ai_terminal_chat/secure_config_backup_*.json ~/.ai_terminal_chat/secure_config.json
+   ```

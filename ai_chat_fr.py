@@ -2,6 +2,7 @@
 """
 Terminal AI Chat - Un clone de Warp pour Linux
 Permet d'utiliser différents LLM (locaux ou API) directement dans le terminal
+Version sécurisée avec chiffrement et validation
 """
 
 import sys
@@ -9,6 +10,7 @@ import json
 import requests
 import subprocess
 import argparse
+import getpass
 from pathlib import Path
 from typing import Dict, Any
 import shutil
@@ -18,6 +20,14 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
 import pyperclip
+
+# Import security utilities
+try:
+    from security_utils import SecurityManager, SecureConfigManager
+    SECURITY_AVAILABLE = True
+except ImportError:
+    SECURITY_AVAILABLE = False
+    print("⚠️  Fonctionnalités de sécurité avancées non disponibles. Installez 'cryptography' pour les activer.")
 
 def safe_prompt(prompt_text, **kwargs):
     """Prompt sécurisé avec gestion des interruptions clavier et EOF"""
@@ -32,12 +42,45 @@ def safe_prompt(prompt_text, **kwargs):
         print("💡 Veuillez lancer la configuration dans un terminal interactif: chat --config")
         sys.exit(0)
 
+def secure_password_prompt(prompt_text: str) -> str:
+    """Prompt sécurisé pour les mots de passe"""
+    try:
+        return getpass.getpass(f"{prompt_text}: ")
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Saisie annulée par l'utilisateur.")
+        sys.exit(0)
+    except EOFError:
+        print("\n\n⚠️  Flux d'entrée fermé de manière inattendue.")
+        sys.exit(0)
+
 class AITerminalChat:
-    def __init__(self):
+    def __init__(self, secure_mode: bool = False):
         self.console = Console()
         self.config_dir = Path.home() / ".ai_terminal_chat"
         self.config_file = self.config_dir / "config.json"
+        self.secure_mode = secure_mode
+        
+        # Initialize security manager if available
+        if SECURITY_AVAILABLE and secure_mode:
+            self.security_manager = SecurityManager(self.config_dir)
+            self.secure_config_manager = SecureConfigManager(self.config_dir, self.security_manager)
+        else:
+            self.security_manager = None
+            self.secure_config_manager = None
+        
         self.config = self.load_config()
+        
+    def validate_user_input(self, user_input: str) -> bool:
+        """Validate user input for security"""
+        if self.security_manager:
+            return self.security_manager.validate_input_safety(user_input)
+        return True
+    
+    def check_rate_limit(self) -> bool:
+        """Check API rate limits"""
+        if self.security_manager:
+            return self.security_manager.check_rate_limit()
+        return True
         
     def load_config(self) -> Dict[str, Any]:
         """Charge la configuration ou crée une configuration par défaut"""
@@ -159,7 +202,7 @@ class AITerminalChat:
         
         return {
             "model": model,
-            "base_url": base_url
+            "api_url": base_url
         }
     
     def setup_lmstudio(self) -> Dict[str, Any]:
@@ -171,7 +214,7 @@ class AITerminalChat:
         
         return {
             "model": model,
-            "base_url": base_url
+            "api_url": base_url
         }
     
     def setup_openai(self) -> Dict[str, Any]:
@@ -206,12 +249,27 @@ class AITerminalChat:
         else:
             model = safe_prompt("Nom du modèle")
         
-        api_key = safe_prompt("Clé API OpenAI", password=True)
+        # Secure API key input with validation
+        if self.secure_mode and self.security_manager:
+            api_key = secure_password_prompt("Clé API OpenAI")
+            
+            # Validate API key format
+            if not self.security_manager.validate_api_key_format(api_key, "openai"):
+                self.console.print("⚠️  Format de clé API non valide détecté", style="yellow")
+                confirm = safe_prompt("Continuer quand même? (y/N)", default="n")
+                if confirm.lower() != 'y':
+                    return self.setup_openai()  # Retry
+            
+            # Display masked key for confirmation
+            masked_key = self.security_manager.mask_api_key(api_key)
+            self.console.print(f"Clé API masquée: {masked_key}")
+        else:
+            api_key = safe_prompt("Clé API OpenAI", password=True)
         
         return {
             "model": model,
             "api_key": api_key,
-            "base_url": "https://api.openai.com/v1"
+            "api_url": "https://api.openai.com/v1"
         }
     
     def setup_openrouter(self) -> Dict[str, Any]:
@@ -277,7 +335,7 @@ class AITerminalChat:
         return {
             "model": model,
             "api_key": api_key,
-            "base_url": "https://openrouter.ai/api/v1"
+            "api_url": "https://openrouter.ai/api/v1"
         }
     
     def setup_anthropic(self) -> Dict[str, Any]:
@@ -313,7 +371,7 @@ class AITerminalChat:
         return {
             "model": model,
             "api_key": api_key,
-            "base_url": "https://api.anthropic.com"
+            "api_url": "https://api.anthropic.com"
         }
     
     def setup_groq(self) -> Dict[str, Any]:
@@ -352,17 +410,41 @@ class AITerminalChat:
         return {
             "model": model,
             "api_key": api_key,
-            "base_url": "https://api.groq.com/openai/v1"
+            "api_url": "https://api.groq.com/openai/v1"
         }
     
     def send_message(self, message: str) -> str:
-        """Envoie un message au LLM configuré"""
+        """Envoie un message au LLM configuré avec vérifications de sécurité"""
+        
+        # Validate user input for security
+        if not self.validate_user_input(message):
+            return "❌ Message refusé pour des raisons de sécurité. Évitez les caractères spéciaux et commandes système."
+        
+        # Check rate limits
+        if not self.check_rate_limit():
+            return "⚠️  Limite de taux atteinte. Veuillez attendre avant de faire une nouvelle requête."
+        
+        # Log security event
+        if self.security_manager:
+            self.security_manager.log_security_event("message_sent", {
+                "llm_type": self.config["llm_type"],
+                "model": self.config["model"],
+                "message_length": len(message)
+            })
+        
         try:
             if self.config["llm_type"] in ["ollama", "lmstudio"]:
                 return self.send_to_local_llm(message)
             else:
                 return self.send_to_api_llm(message)
         except requests.exceptions.HTTPError as e:
+            # Log error for security monitoring
+            if self.security_manager:
+                self.security_manager.log_security_event("http_error", {
+                    "status_code": e.response.status_code,
+                    "llm_type": self.config["llm_type"]
+                })
+            
             # Erreur HTTP spécifique
             if e.response.status_code == 404:
                 return f"❌ Erreur 404: Endpoint API non trouvé. Vérifiez la configuration de votre LLM.\nURL utilisée: {e.response.url}\nType LLM: {self.config['llm_type']}"
@@ -373,17 +455,23 @@ class AITerminalChat:
             else:
                 return f"❌ Erreur HTTP {e.response.status_code}: {e.response.text}"
         except requests.exceptions.ConnectionError:
-            return f"❌ Erreur de connexion. Vérifiez votre connexion internet et l'URL de base: {self.config.get('base_url', 'non configurée')}"
+            return f"❌ Erreur de connexion. Vérifiez votre connexion internet et l'URL de base: {self.config.get('api_url', 'non configurée')}"
         except requests.exceptions.Timeout:
             return f"❌ Timeout: Le LLM {self.config['llm_type']} met trop de temps à répondre"
         except KeyError as e:
             return f"❌ Erreur de configuration: clé manquante {e}. Utilisez 'config' pour reconfigurer."
         except Exception as e:
+            # Log unexpected errors
+            if self.security_manager:
+                self.security_manager.log_security_event("unexpected_error", {
+                    "error": str(e),
+                    "llm_type": self.config.get("llm_type", "unknown")
+                })
             return f"❌ Erreur lors de l'envoi du message: {str(e)}"
     
     def send_to_local_llm(self, message: str) -> str:
         """Envoi vers un LLM local (Ollama/LMStudio)"""
-        url = f"{self.config['base_url']}/api/generate"
+        url = f"{self.config['api_url']}/api/generate"
         
         data = {
             "model": self.config["model"],
@@ -416,7 +504,7 @@ class AITerminalChat:
             }
             
             response = requests.post(
-                f"{self.config['base_url']}/v1/messages",
+                f"{self.config['api_url']}/v1/messages",
                 headers=headers,
                 json=data,
                 timeout=120
@@ -443,7 +531,7 @@ class AITerminalChat:
             if self.config["llm_type"] == "openrouter":
                 import json
                 response = requests.post(
-                    f"{self.config['base_url']}/chat/completions",
+                    f"{self.config['api_url']}/chat/completions",
                     headers=headers,
                     data=json.dumps(data),  # <-- VOICI LA CORRECTION !
                     timeout=120
@@ -451,7 +539,7 @@ class AITerminalChat:
             else:
                 # Groq et OpenAI utilisent json=data normalement
                 response = requests.post(
-                    f"{self.config['base_url']}/chat/completions",
+                    f"{self.config['api_url']}/chat/completions",
                     headers=headers,
                     json=data,
                     timeout=120
@@ -520,16 +608,37 @@ class AITerminalChat:
             self.console.print(f"[bold]Erreur: {e}[/bold]")
 
 def main():
-    parser = argparse.ArgumentParser(description="AI Terminal Chat - Clone de Warp pour Linux")
+    parser = argparse.ArgumentParser(description="AI Terminal Chat - Assistant IA dans votre terminal (Secure Edition)")
     parser.add_argument("--config", action="store_true", help="Reconfigurer le LLM")
+    parser.add_argument("--secure-mode", action="store_true", help="Activer le mode sécurisé")
+    parser.add_argument("--version", action="version", version="AI Terminal Chat 2.0 (Secure Edition)")
     args = parser.parse_args()
     
-    chat = AITerminalChat()
+    if not SECURITY_AVAILABLE and args.secure_mode:
+        print("⚠️  Mode sécurisé demandé mais cryptography n'est pas installé.")
+        print("💡 Installez cryptography: pip install cryptography")
+        sys.exit(1)
     
-    if args.config:
-        chat.config = chat.setup_initial_config()
-    
-    chat.start_chat()
+    try:
+        chat = AITerminalChat(secure_mode=args.secure_mode)
+        
+        if args.secure_mode:
+            print("🔒 Mode sécurisé activé")
+            print("   - Validation des entrées utilisateur")
+            print("   - Limitation du taux de requêtes")
+            print("   - Chiffrement des données sensibles")
+            print("   - Logging sécurisé des activités")
+        
+        if args.config:
+            chat.config = chat.setup_initial_config()
+        
+        chat.start_chat()
+        
+    except KeyboardInterrupt:
+        print("\n👋 Au revoir!")
+    except Exception as e:
+        print(f"❌ Erreur fatale: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

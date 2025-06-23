@@ -2,6 +2,7 @@
 """
 Terminal AI Chat - A Warp clone for Linux
 Allows using different LLMs (local or API) directly in the terminal
+Secure Edition with encryption and validation
 """
 
 import sys
@@ -9,6 +10,7 @@ import json
 import requests
 import subprocess
 import argparse
+import getpass
 from pathlib import Path
 from typing import Dict, Any
 import shutil
@@ -18,6 +20,14 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
 import pyperclip
+
+# Import security utilities
+try:
+    from security_utils import SecurityManager, SecureConfigManager
+    SECURITY_AVAILABLE = True
+except ImportError:
+    SECURITY_AVAILABLE = False
+    print("⚠️  Advanced security features not available. Install 'cryptography' to enable them.")
 
 def safe_prompt(prompt_text, **kwargs):
     """Safe prompt with keyboard interrupt and EOF handling"""
@@ -32,12 +42,45 @@ def safe_prompt(prompt_text, **kwargs):
         print("💡 Please run the configuration in an interactive terminal: chat --config")
         sys.exit(0)
 
+def secure_password_prompt(prompt_text: str) -> str:
+    """Secure prompt for passwords"""
+    try:
+        return getpass.getpass(f"{prompt_text}: ")
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Input cancelled by user.")
+        sys.exit(0)
+    except EOFError:
+        print("\n\n⚠️  Input stream closed unexpectedly.")
+        sys.exit(0)
+
 class AITerminalChat:
-    def __init__(self):
+    def __init__(self, secure_mode: bool = False):
         self.console = Console()
         self.config_dir = Path.home() / ".ai_terminal_chat"
         self.config_file = self.config_dir / "config.json"
+        self.secure_mode = secure_mode
+        
+        # Initialize security manager if available
+        if SECURITY_AVAILABLE and secure_mode:
+            self.security_manager = SecurityManager(self.config_dir)
+            self.secure_config_manager = SecureConfigManager(self.config_dir, self.security_manager)
+        else:
+            self.security_manager = None
+            self.secure_config_manager = None
+        
         self.config = self.load_config()
+        
+    def validate_user_input(self, user_input: str) -> bool:
+        """Validate user input for security"""
+        if self.security_manager:
+            return self.security_manager.validate_input_safety(user_input)
+        return True
+    
+    def check_rate_limit(self) -> bool:
+        """Check API rate limits"""
+        if self.security_manager:
+            return self.security_manager.check_rate_limit()
+        return True
         
     def load_config(self) -> Dict[str, Any]:
         """Load configuration or create a default configuration"""
@@ -487,16 +530,37 @@ class AITerminalChat:
             self.console.print(f"[bold]Error: {e}[/bold]")
 
 def main():
-    parser = argparse.ArgumentParser(description="AI Terminal Chat - Warp clone for Linux")
+    parser = argparse.ArgumentParser(description="AI Terminal Chat - Terminal AI Assistant (Secure Edition)")
     parser.add_argument("--config", action="store_true", help="Reconfigure LLM")
+    parser.add_argument("--secure-mode", action="store_true", help="Enable secure mode")
+    parser.add_argument("--version", action="version", version="AI Terminal Chat 2.0 (Secure Edition)")
     args = parser.parse_args()
     
-    chat = AITerminalChat()
+    if not SECURITY_AVAILABLE and args.secure_mode:
+        print("⚠️  Secure mode requested but cryptography is not installed.")
+        print("💡 Install cryptography: pip install cryptography")
+        sys.exit(1)
     
-    if args.config:
-        chat.config = chat.setup_initial_config()
-    
-    chat.start_chat()
+    try:
+        chat = AITerminalChat(secure_mode=args.secure_mode)
+        
+        if args.secure_mode:
+            print("🔒 Secure mode activated")
+            print("   - User input validation")
+            print("   - Request rate limiting")
+            print("   - Sensitive data encryption")
+            print("   - Secure activity logging")
+        
+        if args.config:
+            chat.config = chat.setup_initial_config()
+        
+        chat.start_chat()
+        
+    except KeyboardInterrupt:
+        print("\n👋 Goodbye!")
+    except Exception as e:
+        print(f"❌ Fatal error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

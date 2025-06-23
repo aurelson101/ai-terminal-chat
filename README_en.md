@@ -1,15 +1,28 @@
-# AI Terminal Chat 🤖💬
+# AI Terminal Chat 🤖💬 - Secure Edition
 
 An intelligent AI assistant for your terminal, inspired by Warp, with support for numerous local and online LLMs.
+
+**🔒 Version 2.0 with advanced security features**
 
 ## ✨ Features
 
 - **Complete LLM support**: Ollama, LM Studio, OpenAI, OpenRouter, Anthropic, Groq
+- **Enhanced security**: API key encryption, input validation, rate limiting
 - **Multilingual**: French and English with automatic detection
-- **Cross-platform**: Linux and Windows 11 with PowerShell
+- **Cross-platform**: Linux and Windows 11 with secure PowerShell
 - **Elegant interface**: Adaptive colors and Rich formatting
 - **Simple configuration**: Interactive configuration assistant
 - **Global command**: Type `chat` from anywhere
+- **Audit and logging**: Complete activity traceability
+
+## 🛡️ Security Features (New!)
+
+- **🔐 Encryption**: API keys encrypted with AES-256 + PBKDF2
+- **⚡ Rate Limiting**: API abuse protection (per minute/hour/day)
+- **🛡️ Input Validation**: Command injection protection
+- **📊 Audit Trail**: Secure logging of all activities
+- **🔍 Integrity Validation**: Script and configuration verification
+- **🔒 Secure Mode**: Enhanced protection activation
 
 ![enter image description here](https://i.ibb.co/W4QMVR5S/chat-ai-menu.png)
 
@@ -38,12 +51,47 @@ chat
 git clone https://github.com/aurelson101/ai-terminal-chat
 cd ai-terminal-chat
 
-# Installation
+# Standard installation
 .\install_windows.ps1
+
+# Secure mode installation (recommended)
+.\install_windows.ps1 -SecureMode -Verbose
+
+# Security validation
+.\validate_security_windows.ps1 -Detailed
 
 # Usage
 chat
+
+# Secure mode
+chat --secure-mode
 ```
+
+## 🔒 Secure Usage (New!)
+
+### Activating secure mode
+
+```bash
+# Full secure mode
+chat --secure-mode
+
+# Configuration with encryption
+chat --config --secure-mode
+
+# Installation validation
+# Linux
+python3 security_utils.py --validate
+
+# Windows
+.\validate_security_windows.ps1 -Detailed -FixIssues
+```
+
+### Security features
+
+- **API key encryption**: Master password input to encrypt keys
+- **Intelligent rate limiting**: Limits per minute (10), hour (100), day (1000)  
+- **Input validation**: Automatic blocking of dangerous commands
+- **Audit trail**: Secure logs in `~/.ai_terminal_chat/audit.log`
 
 ## 💬 Usage
 

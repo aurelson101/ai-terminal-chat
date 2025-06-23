@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Terminal AI Chat - Multilingual AI terminal chat application
+Terminal AI Chat - Multilingual AI terminal chat application (Secure Edition)
 Automatically detects system language and loads appropriate version
+Version 2.0 with advanced security features
 """
 
 import sys
@@ -24,8 +25,11 @@ def save_language_preference(lang):
     config_file = config_dir / "language_config.json"
     config = {"preferred_language": lang}
     
-    with open(config_file, 'w') as f:
-        json.dump(config, f)
+    try:
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
+    except (OSError, PermissionError) as e:
+        print(f"⚠️  Warning: Could not save language preference: {e}")
 
 def load_language_preference():
     """Load the saved language preference"""
@@ -33,10 +37,10 @@ def load_language_preference():
     
     if config_file.exists():
         try:
-            with open(config_file, 'r') as f:
+            with open(config_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
                 return config.get("preferred_language")
-        except Exception:
+        except (OSError, PermissionError, json.JSONDecodeError):
             pass
     
     return None
@@ -67,23 +71,28 @@ def get_system_language():
         return 'en'
 
 def main():
-    parser = argparse.ArgumentParser(description="AI Terminal Chat - Multilingual")
+    parser = argparse.ArgumentParser(description="AI Terminal Chat - Multilingual Terminal AI Assistant (Secure Edition)")
     parser.add_argument("--lang", choices=['fr', 'en'], help="Force language (fr/en)")
     parser.add_argument("--config", action="store_true", help="Reconfigure LLM")
     parser.add_argument("--select-lang", action="store_true", help="Show language selection")
     parser.add_argument("--reset-lang", action="store_true", help="Reset language preference")
+    parser.add_argument("--secure-mode", action="store_true", help="Enable secure mode")
+    parser.add_argument("--version", action="version", version="AI Terminal Chat 2.0 (Secure Edition)")
     args, unknown_args = parser.parse_known_args()
     
     script_dir = Path(__file__).parent
     
     # Reset language preference
     if args.reset_lang:
-        config_file = get_config_dir() / "language_config.json"
-        if config_file.exists():
-            config_file.unlink()
-            print("✅ Language preference reset. Will auto-detect on next run.")
-        else:
-            print("ℹ️  No language preference was set.")
+        try:
+            config_file = get_config_dir() / "language_config.json"
+            if config_file.exists():
+                config_file.unlink()
+                print("✅ Language preference reset. Will auto-detect on next run.")
+            else:
+                print("ℹ️  No language preference was set.")
+        except (OSError, PermissionError) as e:
+            print(f"❌ Error resetting language preference: {e}")
         return
     
     # Language selection mode
@@ -108,11 +117,16 @@ def main():
             lang = "fr"
             save_language_preference(lang)
             print("\n🇫🇷 Démarrage de la version française...")
-            print("📖 Documentation: README_fr.md")
+            print("📖 Documentation: README.md")
         else:
             lang = "fr"  # Default to French
             save_language_preference(lang)
             print("\n🇫🇷 Démarrage par défaut en français...")
+        
+        # Launch the selected language version
+        print()
+        print("🚀 Launching...")
+        print()
     else:
         # Determine language priority: --lang > saved preference > auto-detect
         if args.lang:
@@ -151,16 +165,24 @@ def main():
     cmd = [sys.executable, str(script_path)]
     if args.config:
         cmd.append("--config")
+    if args.secure_mode:
+        cmd.append("--secure-mode")
     cmd.extend(unknown_args)
     
     # Execute the appropriate version
     try:
-        subprocess.run(cmd)
+        result = subprocess.run(cmd)
+        return result.returncode
     except KeyboardInterrupt:
-        pass
+        print("\n💡 Session interrupted by user")
+        return 0
+    except FileNotFoundError:
+        print(f"❌ Python executable not found: {sys.executable}")
+        print("💡 Make sure Python is properly installed and in PATH")
+        return 1
     except Exception as e:
         print(f"❌ Error launching script: {e}")
-        sys.exit(1)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
