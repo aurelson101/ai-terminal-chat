@@ -257,3 +257,59 @@ chat --secure-mode --audit-high
    # Restaurer depuis une sauvegarde
    cp ~/.ai_terminal_chat/secure_config_backup_*.json ~/.ai_terminal_chat/secure_config.json
    ```
+
+## 📁 Structure du Projet
+
+```text
+├── ai_chat.py                   # Script principal (détection automatique de langue)
+├── ai_chat_fr.py                # Interface française
+├── ai_chat_en.py                # Interface anglaise
+├── ai_chat_windows.py           # Script principal Windows
+├── security_utils.py            # Module utilitaires de sécurité
+├── config_migration.py          # Utilitaire de migration de configuration
+├── windows_helper.py            # Module d'aide Windows
+├── install.sh                   # Installation Linux
+├── install_windows.ps1          # Installation Windows (sécurisée)
+├── uninstall.sh                 # Désinstallation Linux
+├── uninstall_windows.ps1        # Désinstallation Windows
+├── validate_security.sh         # Validation sécurité Linux
+├── validate_security_windows.ps1 # Validation sécurité Windows
+├── requirements.txt             # Dépendances Python
+├── README.md                    # Ce fichier
+└── README_en.md                 # Version anglaise
+```
+
+## 🛠️ Dépannage
+
+### Commande `chat` non trouvée
+
+```bash
+# Linux
+source ~/.bashrc
+# ou
+source ~/.zshrc
+
+# Vérifier l'installation
+which chat
+```
+
+### Erreur de configuration
+
+```bash
+# Vérifier la configuration
+python3 config_migration.py --check
+
+# Corriger automatiquement
+python3 config_migration.py --migrate
+```
+
+### Problèmes de permissions
+
+```bash
+# Linux/macOS
+chmod 755 ~/.local/bin/chat
+chmod 600 ~/.ai_terminal_chat/config.json
+
+# Réinstaller si nécessaire
+./install.sh
+```

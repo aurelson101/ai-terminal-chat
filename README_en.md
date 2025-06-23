@@ -177,18 +177,22 @@ chat --reset-lang
 ## 📁 Structure
 
 ```text
-├── ai_chat.py              # Linux main script
-├── ai_chat_windows.py      # Windows main script
-├── ai_chat_fr.py           # French interface
-├── ai_chat_en.py           # English interface
-├── windows_helper.py       # Windows helper module
-├── install.sh              # Linux installation
-├── install_windows.ps1     # Windows installation
-├── uninstall.sh            # Linux uninstallation
-├── uninstall_windows.ps1   # Windows uninstallation
-├── requirements.txt        # Python dependencies
-├── README.md               # French version
-└── README_en.md            # This file
+├── ai_chat.py                   # Main script (language auto-detection)
+├── ai_chat_fr.py                # French interface
+├── ai_chat_en.py                # English interface
+├── ai_chat_windows.py           # Windows main script
+├── security_utils.py            # Security utilities module
+├── config_migration.py          # Configuration migration utility
+├── windows_helper.py            # Windows helper module
+├── install.sh                   # Linux installation
+├── install_windows.ps1          # Windows installation (secure)
+├── uninstall.sh                 # Linux uninstallation
+├── uninstall_windows.ps1        # Windows uninstallation
+├── validate_security.sh         # Linux security validation
+├── validate_security_windows.ps1 # Windows security validation
+├── requirements.txt             # Python dependencies
+├── README.md                    # French version
+└── README_en.md                 # This file
 ```
 
 ## 🛠️ Troubleshooting
