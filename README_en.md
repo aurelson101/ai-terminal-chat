@@ -46,11 +46,27 @@ chat
 
 ### Windows 11
 
-```powershell
+**💡 Recommended method: Interactive batch menu**
+
+```batch
 # Clone the project
 git clone https://github.com/aurelson101/ai-terminal-chat
 cd ai-terminal-chat
 
+# Launch the interactive menu (Recommended)
+menu_windows.bat
+```
+
+The batch menu offers:
+- 🌐 **Language selection** (French/English) on first launch
+- 📦 **Automatic installation** with dependency management
+- 🗑️ **Clean uninstallation**
+- 🔧 **Python issue fixes** (Microsoft Store)
+- ⚡ **Secure execution** (automatic Bypass mode)
+
+**Alternative method: Direct PowerShell**
+
+```powershell
 # Standard installation
 .\install_windows.ps1
 
@@ -66,6 +82,62 @@ chat
 # Secure mode
 chat --secure-mode
 ```
+
+## 🪟 Windows Guide - Interactive Batch Menu
+
+The Windows batch menu (`menu_windows.bat`) provides a simplified and secure interface to manage AI Terminal Chat on Windows.
+
+### 🚀 First use
+
+1. **Clone the project** and navigate to the folder
+2. **Double-click** on `menu_windows.bat` or launch it from PowerShell:
+   ```batch
+   .\menu_windows.bat
+   ```
+
+3. **Select your language** on first launch:
+   - `1` for English
+   - `2` for Français
+
+Your choice will be remembered for future uses.
+
+### 📋 Menu options
+
+#### 1. 📦 Install AI Terminal Chat
+- Complete automatic installation
+- Python detection and installation if needed
+- Git installation via winget
+- Global scripts and aliases configuration
+- Automatic PATH management
+
+#### 2. 🗑️ Uninstall AI Terminal Chat
+- Clean script removal
+- Alias and configuration cleanup
+- Preserves Python and Git by default
+
+#### 3. 🔧 Fix Python Issue
+- Resolves common Microsoft Store Python alias problem
+- Resets PATH configuration
+- Forces use of installed Python
+
+#### 4. 🚪 Exit
+- Close menu with confirmation message
+
+### ⚡ Batch menu advantages
+
+- **🔒 Security**: Automatic Bypass mode execution
+- **🌐 Multilingual**: Interface in French or English
+- **🎯 Simplicity**: Only 4 essential options
+- **💾 Memory**: Remembers your language preferences
+- **🛠️ Robustness**: Handles common Windows issues
+
+### 🔧 Windows troubleshooting
+
+If you encounter issues, use menu option 3 which:
+- Removes problematic Microsoft Store Python aliases
+- Fixes PATH environment variables
+- Reinstalls Python if necessary
+- Properly configures the environment
 
 ## 🔒 Secure Usage (New!)
 

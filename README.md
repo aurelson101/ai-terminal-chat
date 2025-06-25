@@ -65,11 +65,27 @@ chat
 
 ### Windows 11
 
-```powershell
+**💡 Méthode recommandée : Menu batch interactif**
+
+```batch
 # Cloner le projet
 git clone https://github.com/aurelson101/ai-terminal-chat
 cd ai-terminal-chat
 
+# Lancer le menu interactif (Recommandé)
+menu_windows.bat
+```
+
+Le menu batch vous propose :
+- 🌐 **Sélection de langue** (Français/Anglais) au premier lancement
+- 📦 **Installation automatique** avec gestion des dépendances
+- 🗑️ **Désinstallation propre**
+- 🔧 **Correction des problèmes Python** (Microsoft Store)
+- ⚡ **Exécution sécurisée** (mode Bypass automatique)
+
+**Méthode alternative : PowerShell direct**
+
+```powershell
 # Installation standard
 .\install_windows.ps1
 
@@ -85,6 +101,62 @@ chat
 # Mode sécurisé
 chat --secure-mode
 ```
+
+## 🪟 Guide Windows - Menu Batch Interactif
+
+Le menu batch Windows (`menu_windows.bat`) offre une interface simplifiée et sécurisée pour gérer AI Terminal Chat sur Windows.
+
+### 🚀 Première utilisation
+
+1. **Clonez le projet** et naviguez dans le dossier
+2. **Double-cliquez** sur `menu_windows.bat` ou lancez-le depuis PowerShell :
+   ```batch
+   .\menu_windows.bat
+   ```
+
+3. **Sélectionnez votre langue** au premier lancement :
+   - `1` pour English
+   - `2` pour Français
+
+Votre choix sera mémorisé pour les prochaines utilisations.
+
+### 📋 Options du menu
+
+#### 1. 📦 Installer AI Terminal Chat
+- Installation complète automatique
+- Détection et installation de Python si nécessaire
+- Installation de Git via winget
+- Configuration des scripts et alias globaux
+- Gestion automatique du PATH
+
+#### 2. 🗑️ Désinstaller AI Terminal Chat
+- Suppression propre des scripts
+- Suppression des alias et configurations
+- Préservation de Python et Git par défaut
+
+#### 3. 🔧 Corriger le problème Python
+- Résout le problème courant d'alias Python du Microsoft Store
+- Réinitialise la configuration PATH
+- Force l'utilisation du Python installé
+
+#### 4. 🚪 Quitter
+- Fermeture du menu avec message de confirmation
+
+### ⚡ Avantages du menu batch
+
+- **🔒 Sécurité** : Exécution automatique en mode Bypass
+- **🌐 Multilingue** : Interface en français ou anglais
+- **🎯 Simplicité** : Seulement 4 options essentielles
+- **💾 Mémoire** : Retient vos préférences de langue
+- **🛠️ Robustesse** : Gère les problèmes Windows courants
+
+### 🔧 Résolution de problèmes Windows
+
+Si vous rencontrez des problèmes, utilisez l'option 3 du menu qui :
+- Supprime les alias Python problématiques du Microsoft Store
+- Corrige les variables d'environnement PATH
+- Réinstalle Python si nécessaire
+- Configure correctement l'environnement
 
 ## 🔒 Utilisation Sécurisée (Nouveau!)
 
