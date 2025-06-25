@@ -1,7 +1,46 @@
-# AI Terminal Chat - Uninstall Script for Windows 11
+﻿# AI Terminal Chat - Uninstall Script for Windows 11
 # PowerShell script for removing AI Terminal Chat from Windows
 
+<#
+.SYNOPSIS
+    Désinstallation complète d'AI Terminal Chat pour Windows
+
+.DESCRIPTION
+    Ce script supprime AI Terminal Chat et peut optionnellement désinstaller
+    Git et Python s'ils ont été installés par le script d'installation.
+
+.PARAMETER Force
+    Force la désinstallation sans demander de confirmation
+
+.PARAMETER RemoveDependencies
+    Supprime également Git et Python installés par winget
+
+.PARAMETER Verbose
+    Active les logs détaillés
+
+.EXAMPLE
+    .\uninstall_windows.ps1
+    Désinstallation normale
+
+.EXAMPLE
+    .\uninstall_windows.ps1 -RemoveDependencies
+    Désinstallation avec suppression des dépendances
+
+.EXAMPLE
+    .\uninstall_windows.ps1 -Force
+    Désinstallation forcée sans confirmation
+#>
+
+param(
+    [switch]$Force = $false,
+    [switch]$RemoveDependencies = $false,
+    [switch]$Verbose = $false
+)
+
 Write-Host "🗑️  Désinstallation de AI Terminal Chat pour Windows..." -ForegroundColor Yellow
+if ($RemoveDependencies) {
+    Write-Host "⚠️  Mode de suppression des dépendances activé" -ForegroundColor Red
+}
 
 # Define paths
 $InstallDir = "$env:LOCALAPPDATA\ai_terminal_chat"

@@ -1,4 +1,4 @@
-# AI Terminal Chat - Security Validation Script for Windows
+﻿# AI Terminal Chat - Security Validation Script for Windows
 # PowerShell script for validating security configuration
 
 param(
@@ -51,7 +51,7 @@ function Test-PackageSecurity {
         $securityPackages = @("cryptography", "requests")
         
         foreach ($package in $securityPackages) {
-            $result = python -c "import $package; print('$package:', $package.__version__)" 2>&1
+            $result = python -c "import $package; print('${package}:', $package.__version__)" 2>&1
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "   ✅ $result" -ForegroundColor Green
             } else {
@@ -63,8 +63,8 @@ function Test-PackageSecurity {
             }
         }
         
-        # Check for known vulnerable packages
-        $vulnCheck = python -c "
+        # Check for known vulnerable packages using separate Python script
+        $pythonScript = @"
 import sys
 try:
     import requests
@@ -72,12 +72,14 @@ try:
     # Check for known vulnerable requests versions
     vulnerable_versions = ['2.20.0', '2.19.1', '2.18.4']
     if version in vulnerable_versions:
-        print('WARNING: requests version', version, 'has known vulnerabilities')
+        print('WARNING: requests version ' + version + ' has known vulnerabilities')
     else:
-        print('OK: requests version', version, 'appears secure')
+        print('OK: requests version ' + version + ' appears secure')
 except ImportError:
     print('ERROR: requests not installed')
-" 2>&1
+"@
+        
+        $vulnCheck = python -c $pythonScript 2>&1
         
         if ($vulnCheck -match "WARNING") {
             Write-Host "   ⚠️  $vulnCheck" -ForegroundColor Yellow
